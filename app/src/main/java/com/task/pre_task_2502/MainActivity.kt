@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         }
         recyclerView.adapter = imageAdapter
 
-        // 데이터 수집
+        // 데이터 수집..
         lifecycleScope.launch {
             imageViewModel.photosFlow.collectLatest { pagingData ->
                 imageAdapter.submitData(pagingData)
