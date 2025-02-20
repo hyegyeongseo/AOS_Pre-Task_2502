@@ -20,6 +20,7 @@ import com.task.pre_task_2502.presentation.viewmodel.ImageViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import com.task.pre_task_2502.data.repository.remote.RetrofitClient
+import com.task.pre_task_2502.presentation.view.activities.DetailActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = GridLayoutManager(this, 2) // 두 개의 열로 설정
         imageAdapter = ImageAdapter { image ->
             // 상세 정보를 보기 위한 Activity로 이동
-            //val intent = Intent(this, DetailActivity::class.java)
+            val intent = Intent(this, DetailActivity::class.java)
             intent.putExtra("imageId", image.id) // 이미지 ID 전달
             startActivity(intent)
         }
@@ -76,9 +77,9 @@ class MainActivity : AppCompatActivity() {
                 val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
 
                 // 마지막 아이템에 도달했을 때 추가 데이터 로드
-                //if (lastVisibleItemPosition == totalItemCount - 1 && !imageAdapter.loadState.append is LoadState.Loading) {
-                //    loadingSpinner.visibility = View.VISIBLE // 로딩 스피너 보이기
-                //}
+                if (lastVisibleItemPosition == totalItemCount - 1 && imageAdapter.itemCount > 0) {
+                    imageAdapter.retry() // 추가 데이터 요청
+                }
             }
         })
 

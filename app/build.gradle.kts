@@ -1,7 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.android) version "2.0.21"
     id("com.google.devtools.ksp")
+    kotlin("kapt")
 }
 
 android {
@@ -34,6 +35,12 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    // DataBinding 활성화
+    buildFeatures {
+        dataBinding = true
+        buildConfig = true
+    }
 }
 
 dependencies {
@@ -54,6 +61,8 @@ dependencies {
     // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
     // See Add the KSP plugin to your project
     ksp("androidx.room:room-compiler:$room_version")
+    // optional - Paging 3 Integration
+    implementation("androidx.room:room-paging:$room_version")
 
 
     val lifecycle_version = "2.8.7"
@@ -67,7 +76,8 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0") // Gson 컨버터
 
     implementation ("com.github.bumptech.glide:glide:4.13.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.13.0")
+    //annotationProcessor ("com.github.bumptech.glide:compiler:4.13.0")
+    kapt("com.github.bumptech.glide:compiler:4.13.0")
 
     implementation("androidx.recyclerview:recyclerview:1.4.0")
 
@@ -82,4 +92,9 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     // To use constraintlayout in compose
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0")
+
+    implementation ("com.google.android.material:material:1.10.0")
+
+    kapt("groupId:artifactId:version")
+
 }
