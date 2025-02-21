@@ -3,113 +3,188 @@ package com.task.pre_task_2502
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.facebook.shimmer.ShimmerFrameLayout
+import com.task.pre_task_2502.data.repository.local.AppDatabase
 import com.task.pre_task_2502.data.repository.remote.ApiService
+import com.task.pre_task_2502.data.repository.remote.ImageModel
 import com.task.pre_task_2502.data.repository.remote.ImageRepository
+import com.task.pre_task_2502.data.repository.remote.RetrofitClient
+import com.task.pre_task_2502.presentation.view.activities.DetailActivity
 import com.task.pre_task_2502.presentation.view.adapters.ImageAdapter
 import com.task.pre_task_2502.presentation.viewmodel.ImageViewModel
 import com.task.pre_task_2502.presentation.viewmodel.ImageViewModelFactory
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import com.task.pre_task_2502.data.repository.remote.RetrofitClient
-import com.task.pre_task_2502.presentation.view.activities.DetailActivity
 
 class MainActivity : AppCompatActivity() {
 
-    // 화면에 보여지는 순서
-    // 1. 최상단 앱이름('Test')을 알리는 텍스트 바(아래 위로 스크롤 해도 고정)
-    // 2. 보여줄 이미지 목록 바로 위에 '최신 이미지' 섹션임을 알리는 하얀 배경의 타이틀 바(고정 아님)
-    // 3. 타이틀 바 바로 밑에서부터 unsplash api를 사용하여 이미지를 10개 호출하여 앨범처럼 이미지 목록으로 출력. 이미지 로딩중임을 스켈레톤뷰로 표시
-    // 4. 이미지를 선택하면 팝업창이 뜨면서 선택 이미지에 대한 상세 정보 확인(이미지, 사용자 이름(name), alt_description) 가능
-    // 5. 스크롤을 아래로 내리다가 이미지가 없는 경우, 무한 스크롤 기능을 사용하여 이미지 10개 추가로 출력
-    // 6. 화면 최하단 고정 바의 버튼 두 개로 화면 전환. 첫 화면과 다른 화면 간 전환 역할
-
+    private lateinit var bookmarkContainer: LinearLayout
     private lateinit var recyclerView: RecyclerView
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var loadingSpinner: ProgressBar
-    private lateinit var shimmerFrameLayout: ShimmerFrameLayout
+    private lateinit var latestImagesHeader: TextView
+    private lateinit var bookmarkHeader: TextView
+    private lateinit var bookmarkShimmerLayout: ShimmerFrameLayout
+    private lateinit var latestImagesShimmerLayout: ShimmerFrameLayout // 외부 이미지 스켈레톤 뷰
 
     private val imageViewModel: ImageViewModel by viewModels {
         ImageViewModelFactory(ImageRepository(getApiService()))
     }
+
+    private var isFirstLoad = true // 첫 로딩 여부
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // UI 요소 초기화
+        bookmarkContainer = findViewById(R.id.bookmark_images)
         recyclerView = findViewById(R.id.recycler_view)
-        loadingSpinner = findViewById(R.id.loading_spinner) // 로딩 스피너 초기화
-        shimmerFrameLayout = findViewById(R.id.sfl_sample) // 스켈레톤 UI 초기화
+        loadingSpinner = findViewById(R.id.loading_spinner)
+        latestImagesHeader = findViewById(R.id.latest_images_header)
+        bookmarkHeader = findViewById(R.id.bookmark_header)
+        bookmarkShimmerLayout = findViewById(R.id.bookmark_shimmer_layout) // 북마크 스켈레톤 뷰
+        latestImagesShimmerLayout = findViewById(R.id.latest_images_shimmer_layout) // 외부 스켈레톤 뷰
 
-        // RecyclerView 설정
-        recyclerView.layoutManager = GridLayoutManager(this, 2) // 두 개의 열로 설정
+        // RecyclerView 설정 (수직 스크롤)
+        recyclerView = findViewById(R.id.recycler_view)
+        val gridLayoutManager = GridLayoutManager(this, 2) // 2열 설정
+        recyclerView.layoutManager = gridLayoutManager
         imageAdapter = ImageAdapter { image ->
-            // 상세 정보를 보기 위한 Activity로 이동
-            val intent = Intent(this, DetailActivity::class.java)
-            intent.putExtra("imageId", image.id) // 이미지 ID 전달
-            startActivity(intent)
+            detailActivity(image)
         }
         recyclerView.adapter = imageAdapter
 
-        // 데이터 수집..
-        lifecycleScope.launch {
-            imageViewModel.photosFlow.collectLatest { pagingData ->
-                imageAdapter.submitData(pagingData)
-            }
-        }
-
-        // 스크롤 리스너
+        // 무한 스크롤 구현
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-
                 val layoutManager = recyclerView.layoutManager as GridLayoutManager
-                val totalItemCount = layoutManager.itemCount
-                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-
-                // 마지막 아이템에 도달했을 때 추가 데이터 로드
-                if (lastVisibleItemPosition == totalItemCount - 1 && imageAdapter.itemCount > 0) {
+                if (layoutManager.findLastCompletelyVisibleItemPosition() == imageAdapter.itemCount - 1) {
                     imageAdapter.retry() // 추가 데이터 요청
                 }
             }
         })
 
-        // 이미지 처리
-        imageAdapter.addLoadStateListener { loadState ->
-            // 스켈레톤 UI 표시
-            if (loadState.refresh is LoadState.Loading) {
-                shimmerFrameLayout.visibility = View.VISIBLE
-                recyclerView.visibility = View.GONE
-            } else {
-                shimmerFrameLayout.visibility = View.GONE
-                recyclerView.visibility = View.VISIBLE
-            }
+        // 북마크된 이미지를 로컬 DB에서 불러오기
+        loadBookmarkedImages()
+    }
 
-            // 추가 데이터 로딩 상태 처리
-            if (loadState.append is LoadState.Loading) {
-                loadingSpinner.visibility = View.VISIBLE // 추가 로딩 UI 표시
-            } else {
-                loadingSpinner.visibility = View.GONE // 추가 로딩 완료 시 스피너 숨기기
-            }
+    private fun loadBookmarkedImages() {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(applicationContext)
+            val bookmarkedImagesFlow = db.imageDao().getAllBookmarkedImagesPaged().cachedIn(lifecycleScope)
 
-            // 오류 처리
-            if (loadState.append is LoadState.Error) {
-                val errorState = loadState.append as LoadState.Error
-                Toast.makeText(this@MainActivity, "Error: ${errorState.error.message}", Toast.LENGTH_LONG).show()
+            bookmarkedImagesFlow.collect { pagingData: PagingData<ImageModel> ->
+                // 새로운 코루틴에서 submitData를 호출
+                launch {
+                    imageAdapter.submitData(pagingData)
+                }
+
+                // 데이터가 있는지 확인하기 위해 어댑터의 itemCount를 확인
+                if (imageAdapter.itemCount > 0) {
+                    // 북마크된 이미지가 있을 경우
+                    bookmarkHeader.visibility = View.VISIBLE
+                    bookmarkContainer.visibility = View.VISIBLE
+                    startBookmarkShimmerAnimation() // 북마크 스켈레톤 애니메이션 시작
+
+                    // 북마크된 이미지 표시
+                    val pagingItems = viewModel.pagingData.collectAsLazyPagingItems()
+
+                    for (image in pagingItems) {
+                        image?.let {
+                            val imageView = ImageView(this@MainActivity).apply {
+                                val layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.WRAP_CONTENT, // 가로는 원본 비율에 맞춤
+                                    150 // 세로는 고정
+                                )
+                                this.layoutParams = layoutParams
+                                Glide.with(this).load(it.url).into(this)
+                                setPadding(8, 8, 8, 8) // 패딩 추가
+                                setOnClickListener {
+                                    DetailActivity(it)
+                                }
+                            }
+                            bookmarkContainer.addView(imageView)
+                        }
+                    }
+
+                    stopBookmarkShimmerAnimation() // 북마크 스켈레톤 뷰 중지
+                    latestImagesHeader.visibility = View.VISIBLE // 외부 이미지 헤더 보이기
+
+                    // 외부 이미지를 로드
+                    loadLatestImages()
+                } else {
+                    // 북마크된 이미지가 없을 경우
+                    bookmarkHeader.visibility = View.GONE
+                    bookmarkContainer.visibility = View.GONE
+                    latestImagesHeader.visibility = View.VISIBLE // 외부 이미지 헤더 보이기
+                    startLatestImagesShimmerAnimation() // 외부 이미지 스켈레톤 뷰 시작
+
+                    // 최신 이미지를 로드
+                    loadLatestImages()
+                }
             }
         }
     }
 
-    // Unsplash API 서비스 호출
+    private fun loadLatestImages() {
+        lifecycleScope.launch {
+            loadingSpinner.visibility = View.VISIBLE // 로딩 시작 시 스피너 보이기
+
+            imageViewModel.photosFlow.collect { pagingData ->
+                imageAdapter.submitData(pagingData)
+                loadingSpinner.visibility = View.GONE // 데이터 로딩 후 스피너 숨기기
+            }
+
+            // 첫 로딩 후 스켈레톤 애니메이션 중지
+            if (isFirstLoad) {
+                stopLatestImagesShimmerAnimation() // 외부 스켈레톤 뷰 중지
+                isFirstLoad = false // 첫 로딩 완료 상태로 변경
+            }
+        }
+    }
+
+
+    private fun detailActivity(image: ImageModel) {
+        val intent = Intent(this, DetailActivity::class.java).apply {
+            putExtra("imageId", image.id) // 이미지 ID를 전달
+        }
+        startActivity(intent)
+    }
+
+
+    private fun startBookmarkShimmerAnimation() {
+        bookmarkShimmerLayout.visibility = View.VISIBLE
+        bookmarkShimmerLayout.startShimmer() // 북마크 스켈레톤 애니메이션 시작
+    }
+
+    private fun stopBookmarkShimmerAnimation() {
+        bookmarkShimmerLayout.stopShimmer() // 북마크 스켈레톤 애니메이션 중지
+        bookmarkShimmerLayout.visibility = View.GONE // 북마크 스켈레톤 숨기기
+    }
+
+    private fun startLatestImagesShimmerAnimation() {
+        latestImagesShimmerLayout.visibility = View.VISIBLE
+        latestImagesShimmerLayout.startShimmer() // 최신 이미지 스켈레톤 애니메이션 시작
+    }
+
+    private fun stopLatestImagesShimmerAnimation() {
+        latestImagesShimmerLayout.stopShimmer() // 최신 이미지 스켈레톤 애니메이션 중지
+        latestImagesShimmerLayout.visibility = View.GONE // 스켈레톤 숨기기
+    }
+
     private fun getApiService(): ApiService {
         return RetrofitClient.apiService
     }

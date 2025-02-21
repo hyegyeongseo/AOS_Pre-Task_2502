@@ -1,46 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:background="@android:color/white"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#AB000000"
     android:padding="16dp">
 
-    <ImageView
+    <RelativeLayout
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical">
+
+        <!-- 왼쪽 배치 -->
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="8dp"
+            android:background="@null"
+            android:src="@drawable/x_cancel"
+            android:contentDescription="창 닫기"/>
+
+        <!-- x_cancel 바로 오른쪽에 배치 -->
+
+        <TextView
+            android:id="@+id/tvUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="15dp"
+            android:layout_toRightOf="@id/btnClose"
+            android:text="Username"
+            android:textColor="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnSave"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="61dp"
+            android:layout_marginRight="13dp"
+            android:layout_toLeftOf="@+id/btnBookmark"
+            android:background="@null"
+            android:contentDescription="Save"
+            android:src="@drawable/download" />
+
+        <ImageButton
+            android:id="@+id/btnBookmark"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="8dp"
+            android:background="@null"
+            android:src="@drawable/bookmark"
+            android:contentDescription="북마크로 저장"/>
+    </RelativeLayout>
+
+
+    <ProgressBar
+        android:id="@+id/loading_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:indeterminateTint="@android:color/holo_blue_light"
+        android:visibility="gone"/>
+
+    <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/image_view"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/top_bar"
+        android:layout_above="@id/tvTitle"
+        android:adjustViewBounds="true"
+        android:maxHeight="@dimen/max_image_height"/>
+
+    <!-- 제목 -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/tvAltDescription"
+        android:text="Title"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="8dp"/>
 
     <TextView
-        android:id="@+id/title_text_view"
-        android:layout_width="0dp"
+        android:id="@+id/tvAltDescription"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/image_view" />
-
-    <TextView
-        android:id="@+id/username_text_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_text_view" />
-
-    <TextView
-        android:id="@+id/subscription_text_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/username_text_view" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="Alt Description"
+        android:textColor="@android:color/white" />
+</RelativeLayout>

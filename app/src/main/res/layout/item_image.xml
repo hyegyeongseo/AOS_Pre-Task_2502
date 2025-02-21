@@ -2,33 +2,35 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:orientation="vertical">
 
+    <!-- 스켈레톤 애니메이션을 위한 ShimmerFrameLayout -->
     <com.facebook.shimmer.ShimmerFrameLayout
-        android:id="@+id/shimmer_frame_layout"
+        android:id="@+id/vertical_shimmer_frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:visibility="visible">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/image_view"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/image_description" />/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <!-- 스켈레톤 제목 뷰 -->
+            <TextView
+                android:id="@+id/title_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:textSize="14sp"
+                android:background="@drawable/skeleton_background" />
+
+            <!-- 스켈레톤 이미지 뷰 -->
+            <ImageView
+                android:id="@+id/image_view"
+                android:layout_width="150dp"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/skeleton_background" />
+        </LinearLayout>
     </com.facebook.shimmer.ShimmerFrameLayout>
-
-    <TextView
-        android:id="@+id/title_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:paddingTop="8dp"/>
-
-    <TextView
-        android:id="@+id/username_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
 </LinearLayout>

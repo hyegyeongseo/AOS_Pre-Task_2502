@@ -8,10 +8,11 @@ data class ImageModel(
 )
 
 data class Urls(
+    val full: String, // 전체 이미지 URL
     val regular: String
 )
 
 data class User(
-    val name: String
+    val username: String
 )
 

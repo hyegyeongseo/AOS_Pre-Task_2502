@@ -97,4 +97,6 @@ dependencies {
 
     kapt("groupId:artifactId:version")
 
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
+
 }
