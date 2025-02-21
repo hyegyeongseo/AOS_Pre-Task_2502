@@ -14,7 +14,7 @@ interface ImageDao {
 
     //@Query("SELECT * FROM images WHERE bookmarked = 1")
     //fun getAllBookmarkedImagesPaged(): PagingSource<Int, ImageModel>
-
+//
    // @Query("UPDATE images SET bookmarked = :isBookmarked WHERE id = :imageId")
     //suspend fun updateBookmark(imageId: String, isBookmarked: Boolean)
 }
