@@ -37,10 +37,10 @@ class BookmarkImageViewModel(
     }
 
     // 북마크된 이미지를 가져오는 메서드 추가
-    fun getBookmarkedImages(): Flow<PagingData<LocalImageModel>> {
-        return Pager(
-            config = PagingConfig(pageSize = 20), // 원하는 페이지 크기 설정
-            pagingSourceFactory = { bookmarkDao.getAllBookmarkedImages() } // PagingSource 반환
-        ).flow.cachedIn(viewModelScope) // Flow를 cachedIn으로 래핑
-    }
+    //fun getBookmarkedImages(): Flow<PagingData<LocalImageModel>> {
+    //    return Pager(
+    //        config = PagingConfig(pageSize = 20), // 원하는 페이지 크기 설정
+    //        pagingSourceFactory = { bookmarkDao.getAllBookmarkedImages() } // PagingSource 반환
+    //    ).flow.cachedIn(viewModelScope) // Flow를 cachedIn으로 래핑
+    //}
 }
