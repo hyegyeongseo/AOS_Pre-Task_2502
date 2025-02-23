@@ -22,5 +22,8 @@ interface ApiService {
 
     suspend fun getImages(@Query("page") page: Int): ImageResponse
 
+    @GET("photos/{id}?client_id=YOUR_ACCESS_KEY")
+    suspend fun getImageById(@Path("id") id: String): Response<LatestImageModel>
+
 }
 

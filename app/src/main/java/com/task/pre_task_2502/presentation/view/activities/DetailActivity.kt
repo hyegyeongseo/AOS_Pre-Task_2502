@@ -1,5 +1,4 @@
 package com.task.pre_task_2502.presentation.view.activities
-
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
@@ -11,21 +10,26 @@ import com.bumptech.glide.Glide
 import com.task.pre_task_2502.R
 import com.task.pre_task_2502.data.repository.local.AppDatabase
 import com.task.pre_task_2502.data.repository.local.LocalImageModel
+import com.task.pre_task_2502.data.repository.remote.ApiService
+import com.task.pre_task_2502.data.repository.remote.LatestImageModel
+import com.task.pre_task_2502.data.repository.remote.RetrofitClient
 import com.task.pre_task_2502.data.repository.remote.Urls
 import com.task.pre_task_2502.data.repository.remote.User
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 
 class DetailActivity : AppCompatActivity() {
 
     private lateinit var imageView: com.github.chrisbanes.photoview.PhotoView
     private lateinit var tvUsername: TextView
-    private lateinit var tvTitle: TextView
     private lateinit var tvAltDescription: TextView
     private lateinit var btnClose: ImageButton
     private lateinit var btnBookmark: ImageButton
     private lateinit var loadingSpinner: ProgressBar
+    private lateinit var apiService: ApiService
 
     private var imageId: String? = null
     private var imageUrl: String? = null
@@ -40,20 +44,17 @@ class DetailActivity : AppCompatActivity() {
         // 뷰 초기화
         imageView = findViewById(R.id.image_view)
         tvUsername = findViewById(R.id.tvUsername)
-        tvTitle = findViewById(R.id.tvTitle)
         tvAltDescription = findViewById(R.id.tvAltDescription)
         btnClose = findViewById(R.id.btnClose)
         btnBookmark = findViewById(R.id.btnBookmark)
         loadingSpinner = findViewById(R.id.loading_spinner)
 
+        // Retrofit API 서비스 초기화
+        apiService = RetrofitClient.apiService
+
         // Intent로부터 데이터 받기
         imageId = intent.getStringExtra("imageId")
-        imageUrl = intent.getStringExtra("imageUrl")
-        username = intent.getStringExtra("username")
-        altDescription = intent.getStringExtra("altDescription")
-
-        // 뷰에 데이터 설정
-        setupViews()
+        imageId?.let { loadImage(it) }
 
         // 북마크 버튼 클릭 리스너
         btnBookmark.setOnClickListener {
@@ -66,18 +67,36 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupViews() {
+    private fun loadImage(imageId: String) {
         loadingSpinner.visibility = View.VISIBLE
-        Glide.with(this)
-            .load(imageUrl)
-            .into(imageView)
 
-        tvUsername.text = username
-        tvAltDescription.text = altDescription
-        loadingSpinner.visibility = View.GONE
+        CoroutineScope(Dispatchers.IO).launch {
+            val response: Response<LatestImageModel> = apiService.getImageById(imageId)
 
-        // 북마크 상태 확인
-        checkIfBookmarked()
+            withContext(Dispatchers.Main) {
+                loadingSpinner.visibility = View.GONE
+                // 북마크 상태 확인
+                checkIfBookmarked()
+                if (response.isSuccessful && response.body() != null) {
+                    val imageResponse = response.body()!!
+                    imageUrl = imageResponse.urls.regular // URL 저장
+                    username = imageResponse.user.username // 사용자 이름 저장
+                    altDescription = imageResponse.altDescription // 대체 설명 저장
+
+                    // 이미지 URL을 Glide로 로드
+                    Glide.with(this@DetailActivity)
+                        .load(imageUrl)
+                        .into(imageView)
+
+                    // 사용자 이름과 대체 설명 설정
+                    tvUsername.text = username
+                    tvAltDescription.text = altDescription ?: "No description available"
+                } else {
+                    // 에러 처리
+                    tvAltDescription.text = "Error loading image"
+                }
+            }
+        }
     }
 
     private fun checkIfBookmarked() {
@@ -129,7 +148,4 @@ class DetailActivity : AppCompatActivity() {
         // 불투명도 설정
         btnBookmark.alpha = if (isBookmarked) 0.3f else 1.0f // 30% 또는 100%
     }
-
-
-
 }
