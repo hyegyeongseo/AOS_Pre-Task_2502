@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.task.pre_task_2502.data.repository.local.AppDatabase
-import com.task.pre_task_2502.data.repository.local.LocalImageModel
 import com.task.pre_task_2502.data.repository.remote.ApiService
 import com.task.pre_task_2502.data.repository.remote.ImageRepository
 import com.task.pre_task_2502.data.repository.remote.LatestImageModel
@@ -99,7 +98,7 @@ class MainActivity : AppCompatActivity() {
             val urls = withContext(Dispatchers.IO) {
                 val database = AppDatabase.getDatabase(applicationContext)
                 database.bookmarkDao().getAllBookmarkedImages()
-            }.map { it.url }
+            }.map { it.urls.regular }
 
             // 이미지 로딩
             displayImages(urls)
