@@ -11,23 +11,23 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.task.pre_task_2502.R
-import com.task.pre_task_2502.data.repository.remote.ImageModel
+import com.task.pre_task_2502.data.repository.remote.LatestImageModel
 
-class ImageAdapter(private val onClick: (ImageModel) -> Unit) :
-    PagingDataAdapter<ImageModel, ImageAdapter.ImageViewHolder>(DIFF_CALLBACK) {
+class LatestImageAdapter(private val onClick: (LatestImageModel) -> Unit) :
+    PagingDataAdapter<LatestImageModel, LatestImageAdapter.ImageViewHolder>(DIFF_CALLBACK) {
 
     inner class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val shimmerFrameLayout: ShimmerFrameLayout = view.findViewById(R.id.vertical_shimmer_frame_layout)
         val imageView: ImageView = view.findViewById(R.id.image_view)
         val titleTextView: TextView = view.findViewById(R.id.title_text_view)
 
-        fun bind(image: ImageModel) {
+        fun bind(image: LatestImageModel) {
             shimmerFrameLayout.stopShimmer() // 스켈레톤 애니메이션 중지
             shimmerFrameLayout.visibility = View.GONE // 스켈레톤 숨기기
 
             Glide.with(itemView.context).load(image.urls.regular).into(imageView) // 정규화된 이미지 URL 사용
-            imageView.contentDescription = image.alt_description ?: "No description available"
-            titleTextView.text = image.alt_description ?: "No title"
+            imageView.contentDescription = image.altDescription ?: "No description available"
+            titleTextView.text = image.altDescription ?: "No title"
 
             itemView.setOnClickListener {
                 onClick(image)
@@ -41,7 +41,7 @@ class ImageAdapter(private val onClick: (ImageModel) -> Unit) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_image, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.latest_item_image, parent, false)
         return ImageViewHolder(view)
     }
 
@@ -55,12 +55,12 @@ class ImageAdapter(private val onClick: (ImageModel) -> Unit) :
     }
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ImageModel>() {
-            override fun areItemsTheSame(oldItem: ImageModel, newItem: ImageModel): Boolean {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<LatestImageModel>() {
+            override fun areItemsTheSame(oldItem: LatestImageModel, newItem: LatestImageModel): Boolean {
                 return oldItem.id == newItem.id
             }
 
-            override fun areContentsTheSame(oldItem: ImageModel, newItem: ImageModel): Boolean {
+            override fun areContentsTheSame(oldItem: LatestImageModel, newItem: LatestImageModel): Boolean {
                 return oldItem == newItem
             }
         }

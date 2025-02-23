@@ -16,6 +16,7 @@
 
     <!-- 수평 스크롤을 위한 HorizontalScrollView -->
     <HorizontalScrollView
+        android:id="@+id/bookmark_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone">

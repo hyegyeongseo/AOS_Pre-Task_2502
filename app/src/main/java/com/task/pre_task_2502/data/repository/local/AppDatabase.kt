@@ -4,12 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.task.pre_task_2502.data.repository.remote.ImageModel
 
-@Database(entities = [ImageModel::class], version = 1, exportSchema = false)
-
+// 데이터베이스의 엔티티들을 정의합니다.
+@Database(entities = [LocalImageModel::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun imageDao(): ImageDao
+
+    abstract fun bookmarkDao(): BookmarkDao
 
     companion object {
         @Volatile
@@ -20,7 +20,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "app_database"
+                    "app_database" // 데이터베이스 이름
                 ).build()
                 INSTANCE = instance
                 instance

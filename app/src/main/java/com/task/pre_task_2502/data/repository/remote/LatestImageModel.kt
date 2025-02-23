@@ -1,8 +1,8 @@
 package com.task.pre_task_2502.data.repository.remote
 
-data class ImageModel(
+data class LatestImageModel(
     val id: String,
-    val alt_description: String?,
+    val altDescription: String?,
     val urls: Urls,
     val user: User
 )

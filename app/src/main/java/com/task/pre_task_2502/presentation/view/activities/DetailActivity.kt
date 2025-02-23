@@ -55,7 +55,7 @@ class DetailActivity : AppCompatActivity() {
                         // 데이터 바인딩
                         Glide.with(this@DetailActivity).load(it.urls.full).into(imageView)
                         tvUsername.text = it.user.username
-                        tvAltDescription.text = it.alt_description ?: "No description available"
+                        tvAltDescription.text = it.altDescription ?: "No description available"
                     }
                 } else {
                     // 오류 처리

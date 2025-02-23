@@ -84,6 +84,8 @@ dependencies {
     val paging_version = "3.3.2"
 
     implementation("androidx.paging:paging-runtime:$paging_version")
+    implementation ("androidx.paging:paging-rxjava3:$paging_version") // RxJava 사용 시
+    implementation ("androidx.paging:paging-guava:$paging_version") // Guava 사용 시
 
     implementation ("com.facebook.shimmer:shimmer:0.5.0")
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- 스켈레톤 애니메이션을 위한 ShimmerFrameLayout -->
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/bookmark_shimmer_frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 스켈레톤 제목 뷰 -->
+            <TextView
+                android:id="@+id/bookmark_title_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:textSize="14sp"
+                android:background="@drawable/skeleton_background" />
+
+            <!-- 두 번째 LinearLayout을 첫 번째 LinearLayout 아래에 순서대로 배치 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- 스켈레톤 이미지 뷰 -->
+                <ImageView
+                    android:id="@+id/bookmark_image_view"
+                    android:layout_width="150dp"
+                    android:layout_height="200dp"
+                    android:background="@drawable/skeleton_background"
+                    android:scaleType="centerCrop" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+</LinearLayout>
