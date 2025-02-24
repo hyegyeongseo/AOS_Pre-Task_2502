@@ -102,4 +102,6 @@ dependencies {
 
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+
 }

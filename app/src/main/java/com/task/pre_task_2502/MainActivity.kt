@@ -3,7 +3,6 @@ package com.task.pre_task_2502
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -12,14 +11,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.facebook.shimmer.ShimmerFrameLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.task.pre_task_2502.data.repository.local.AppDatabase
 import com.task.pre_task_2502.data.repository.remote.ApiService
 import com.task.pre_task_2502.data.repository.remote.ImageRepository
-import com.task.pre_task_2502.data.repository.remote.LatestImageModel
 import com.task.pre_task_2502.data.repository.remote.RetrofitClient
 import com.task.pre_task_2502.presentation.view.activities.DetailActivity
+import com.task.pre_task_2502.presentation.view.activities.RandomActivity
 import com.task.pre_task_2502.presentation.view.adapters.BookmarkAdapter
 import com.task.pre_task_2502.presentation.view.adapters.LatestImageAdapter
 import com.task.pre_task_2502.presentation.viewmodel.Bookmark.BookmarkImageViewModel
@@ -38,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bookmarkHeader: TextView
     private lateinit var bookmarkContainer: LinearLayout
     private lateinit var bookmarkShimmerLayout: ShimmerFrameLayout
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     private val imageViewModel: ImageViewModel by viewModels {
         LatestImageViewModelFactory(ImageRepository(getApiService()))
@@ -50,6 +50,25 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
+
+        // BottomNavigationView 클릭 리스너 설정
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    // 현재 Activity이므로 아무 동작도 하지 않음
+                    true
+                }
+                R.id.nav_random -> {
+                    val intent = Intent(this, RandomActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                // 추가 메뉴 항목 처리
+                else -> false
+            }
+        }
 
         // UI 요소 초기화
         recyclerView = findViewById(R.id.recycler_view)
@@ -94,6 +113,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             // RecyclerView에 어댑터 설정
+
             recyclerView.adapter = bookmarkAdapter
 
             stopBookmarkShimmerAnimation()

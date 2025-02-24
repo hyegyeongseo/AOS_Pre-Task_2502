@@ -22,8 +22,11 @@ interface ApiService {
 
     suspend fun getImages(@Query("page") page: Int): ImageResponse
 
-    @GET("photos/{id}?client_id=YOUR_ACCESS_KEY")
+    @GET("photos/{id}?client_id=COIhacekqhvFycs3iAEzezzDYYbTlJhNPKSNyB9dP18")
     suspend fun getImageById(@Path("id") id: String): Response<LatestImageModel>
+
+    @GET("photos/random?client_id=COIhacekqhvFycs3iAEzezzDYYbTlJhNPKSNyB9dP18")
+    suspend fun getRandomPhotos(@Query("count") count: Int): List<LatestImageModel>
 
 }
 
